@@ -22,8 +22,8 @@ const cors = require("cors")
 app.use(cors())
 
 const path = require("path")
-app.use("/image", express.static(path.join(__dirname, 'image')))
-// http://localhost:3000/image/1.jpg
+app.use("/img", express.static(path.join(__dirname, 'img')))
+// http://localhost:3000/img/1.jpg
 
 // ===================== CLIENTE =====================
 
