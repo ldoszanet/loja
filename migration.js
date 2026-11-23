@@ -1,7 +1,13 @@
 const db = require("./db")
 
+// DROP na ordem inversa das FKs: itens -> compra -> imagem -> produto -> cliente
 const ESTRUTURA_CLIENTE = `
+    DROP TABLE IF EXISTS item_compra;
+    DROP TABLE IF EXISTS compra;
+    DROP TABLE IF EXISTS imagem_produto;
+    DROP TABLE IF EXISTS produto;
     DROP TABLE IF EXISTS cliente;
+
     CREATE TABLE cliente (
         id int(11) NOT NULL AUTO_INCREMENT,
         nome varchar(100) NOT NULL,
@@ -25,7 +31,6 @@ const DADOS_CLIENTE = `
 `
 
 const ESTRUTURA_PRODUTO = `
-    DROP TABLE IF EXISTS produto;
     CREATE TABLE produto (
         id int(11) NOT NULL AUTO_INCREMENT,
         nome varchar(200) NOT NULL,
@@ -54,6 +59,34 @@ const DADOS_PRODUTO = `
         (46,'Pedestal para Microfone','Pedestal de chão para microfone, altura ajustável e base giratória.','Acessórios',89.90,'assets/img/pedestal-microfone.jpg',15),(47,'Pop Filter para Microfone','Filtro pop para microfone, reduz plosivas e ruídos de vento.','Acessórios',49.90,'assets/img/pop-filter.jpg',18),(48,'Cabo XLR 5m','Cabo XLR balanceado de 5 metros para microfones e mesas de som.','Acessórios',59.90,'assets/img/cabo-xlr.jpg',20),(49,'Bag para Pedais','Bag para pedais de efeito, com divisórias e alça reforçada.','Acessórios',149.90,'assets/img/bag-pedais.jpg',10);
 `
 
+// Tabela de compras e itens (AV3)
+const ESTRUTURA_COMPRA = `
+    CREATE TABLE compra (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        cliente_id int(11) NOT NULL,
+        data_compra datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        valor_total decimal(10,2) NOT NULL,
+        status varchar(30) NOT NULL DEFAULT 'pendente',
+        PRIMARY KEY (id),
+        KEY fk_compra_cliente (cliente_id),
+        CONSTRAINT fk_compra_cliente FOREIGN KEY (cliente_id) REFERENCES cliente (id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+    CREATE TABLE item_compra (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        compra_id int(11) NOT NULL,
+        produto_id int(11) NOT NULL,
+        quantidade int(11) NOT NULL,
+        preco_unitario decimal(10,2) NOT NULL,
+        subtotal decimal(10,2) NOT NULL,
+        PRIMARY KEY (id),
+        KEY fk_item_compra (compra_id),
+        KEY fk_item_produto (produto_id),
+        CONSTRAINT fk_item_compra FOREIGN KEY (compra_id) REFERENCES compra (id) ON DELETE CASCADE,
+        CONSTRAINT fk_item_produto FOREIGN KEY (produto_id) REFERENCES produto (id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+`
+
 async function criar_tabelas() {
     const connection = await db.pool.getConnection();
     try {
@@ -65,7 +98,10 @@ async function criar_tabelas() {
 
         console.log("Criando tabela 'produto'...");
         await connection.query(ESTRUTURA_PRODUTO);
-        await connection.query(DADOS_PRODUTO);         
+        await connection.query(DADOS_PRODUTO);
+
+        console.log("Criando tabelas 'compra' e 'item_compra'...");
+        await connection.query(ESTRUTURA_COMPRA);
 
         await connection.commit();
         console.log("Migration executada com sucesso!");
