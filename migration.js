@@ -4,7 +4,6 @@ const db = require("./db")
 const ESTRUTURA_CLIENTE = `
     DROP TABLE IF EXISTS item_compra;
     DROP TABLE IF EXISTS compra;
-    DROP TABLE IF EXISTS imagem_produto;
     DROP TABLE IF EXISTS produto;
     DROP TABLE IF EXISTS cliente;
 
