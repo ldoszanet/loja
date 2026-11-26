@@ -24,22 +24,24 @@ async function carregar_produtos(busca=false) {
     const paramsString = params.toString();
     window.history.pushState({}, "", paramsString ? `?${paramsString}` : window.location.pathname);
 
-
     try{
-        const produtos =  await buscar_produtos(params)
+        const produtos = await buscar_produtos(params);
 
         const container = document.getElementById("produtos");
         container.replaceChildren();
         if (produtos.length == 0){
-            document.getElementById("produtos").class = "";
-            document.getElementById("produtos").innerHTML = 
+            container.className = "";
+            container.innerHTML = 
                 '<p style="margin: 0; text-align: center;">❌ Não foi encontrado nenhum produto para essa busca!</p>';
+            return;
         }
         container.className = "grid-produtos"
+        
         produtos.forEach(produto => {
             const card = document.createElement("div");
             card.className = "card";
 
+            // Passamos o objeto do produto como string JSON direto para a função comprar
             card.innerHTML = `
                 <img src="${produto.caminho_img}" alt="${produto.nome}">
                 <div class="nome-produto">${produto.nome}</div>
@@ -47,16 +49,17 @@ async function carregar_produtos(busca=false) {
                     <div class="descricao">${produto.descricao.substring(0, 40)}...</div>
                     <div class="preco">R$ ${produto.preco.replace(".", ",")}</div>
                 </div>
-                <button class="btn_enviar" onclick="comprar(${produto.id})">Comprar</button>
-                `;
+                <button class="btn_enviar" onclick='comprar(${JSON.stringify(produto)})'>Comprar</button>
+            `;
 
             container.appendChild(card);
         });
 
     } catch (error) {
         console.error("Erro ao carregar produtos:", error);
-        document.getElementById("produtos").class = "";
-        document.getElementById("produtos").innerHTML = 
+        const container = document.getElementById("produtos");
+        container.className = "";
+        container.innerHTML = 
                 '<p style="margin: 0; text-align: center;">❌ Não foi possível carregar os produtos.</p>';
     }
 }

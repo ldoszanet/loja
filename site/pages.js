@@ -2,10 +2,13 @@
 function mostrarToast(mensagem, bgClass) {
     const toastEl = document.getElementById("liveToast");
     const toastMessage = document.getElementById("toast-message");
+    
+    // Se o toast não existir na página atual, apenas ignora
+    if (!toastEl || !toastMessage) return; 
+    
     const bsToast = new bootstrap.Toast(toastEl);
     toastMessage.textContent = mensagem;
 
-    // remove classes de cor antigas
     toastEl.classList.remove("bg-success", "bg-danger");
     toastEl.classList.add(bgClass);
 
@@ -20,12 +23,14 @@ function atualizar_navbar() {
     const btn_user_info = document.getElementById("user-info")
 
     if(token && nome) {
-        nav_login.style.display = "none"
-        btn_user_info.style.display = "inline"
-        btn_user_info.innerText= "Olá, " + nome.split(" ")[0]
+        if(nav_login) nav_login.style.display = "none"
+        if(btn_user_info) {
+            btn_user_info.style.display = "inline"
+            btn_user_info.innerText= "Olá, " + nome.split(" ")[0]
+        }
     } else {
-        nav_login.style.display = "inline"
-        btn_user_info.style.display = "none"
+        if(nav_login) nav_login.style.display = "inline"
+        if(btn_user_info) btn_user_info.style.display = "none"
     }
 }
 
